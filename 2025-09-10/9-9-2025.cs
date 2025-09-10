@@ -107,10 +107,12 @@ internal static class Program
 
         Fraction f1 = ReadFraction("Bitte ersten Bruch eingeben: ");
         Fraction f2 = ReadFraction("Bitte zweiten Bruch eingeben: ");
+        Fraction f3 = ReadFraction("Bitte dritten Bruch eingeben: ");
+        
 
-        Fraction sum = f1 + f2;
+        Fraction sum = f1 + f2 + f3;
         Console.WriteLine();
-        Console.WriteLine($"{f1} + {f2} = {sum}");
+        Console.WriteLine($"{f1} + {f2} + {f3} = {sum}");
     }
 
     private static Fraction ReadFraction(string prompt)
