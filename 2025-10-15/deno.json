@@ -2,7 +2,7 @@
     "tasks": {
         "dev": "deno run --watch main.ts",
         "prisma": "deno -A prisma",
-        "prisma:seed": "deno run -A --env-file seed.ts"
+        "seed": "deno run -A seed.ts"
     },
     "imports": {
         "@prisma/client": "npm:@prisma/client@^6.17.0",

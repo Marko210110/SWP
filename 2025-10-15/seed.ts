@@ -1,14 +1,19 @@
 import { PrismaClient } from "./prisma/client/client.ts";
 const prisma = new PrismaClient();
 
-const users = ["Ben", "Georgi", "Marcel", "Dejan", "Moritz"];
+const seed_users = [
+    {name: "Ben", email: "ben@example.com", password: "password123"}
+];
+const seed_posts = [{
+    title: "",
+    content: "",
+    username: ""
+}];
 
 export async function seed() {
-    for (const user of users) {
+    for (const user of seed_users) {
         await prisma.user.create({
-            data: {
-                name: user,
-            },
+            data: user,
         });
     }
 }

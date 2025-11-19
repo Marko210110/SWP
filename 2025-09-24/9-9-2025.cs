@@ -1,11 +1,11 @@
 using System;
 using System.Text.RegularExpressions;
-using System.Threading; // <--- hinzufügen
+using System.Threading; 
 
 internal readonly struct Fraction
 {
-    public long N { get; }  // Zähler
-    public long D { get; }  // Nenner
+    public long N { get; }  
+    public long D { get; }  
 
     public Fraction(long numerator, long denominator)
     {
@@ -23,9 +23,10 @@ internal readonly struct Fraction
     public static Fraction FromMixed(long whole, long num, long den)
     {
         if (den <= 0) throw new ArgumentException("Nenner muss > 0 sein.");
+        if (num < 0) throw new ArgumentException("Zähler im gemischten Bruch darf nicht negativ sein.");
         long sign = whole < 0 ? -1 : 1;
         long absWhole = Math.Abs(whole);
-        long improperNum = absWhole * den + num;
+        long improperNum = checked(absWhole * den + num);
         return new Fraction(sign * improperNum, den);
     }
 
@@ -72,37 +73,49 @@ internal readonly struct Fraction
 
     public override string ToString()
     {
+        // 0 als Sonderfall
         if (N == 0) return "0";
+
         long absN = Math.Abs(N);
         long whole = absN / D;
         long rem = absN % D;
 
-        if (rem == 0)
-            return (N < 0 ? "-" : "") + whole;
+        // Stelle sicher, dass der Bruchteil gekürzt ist (falls erforderlich)
+        if (rem != 0)
+        {
+            long g = Gcd(rem, D);
+            rem /= g;
+            long denReduced = D / g;
 
-        if (whole == 0)
-            return (N < 0 ? "-" : "") + $"{rem}/{D}";
+            if (whole == 0)
+                return (N < 0 ? "-" : "") + $"{rem}/{denReduced}";
 
-        return (N < 0 ? "-" : "") + $"{whole} {rem}/{D}";
+            return (N < 0 ? "-" : "") + $"{whole} {rem}/{denReduced}";
+        }
+
+        // kein Rest -> ganze Zahl
+        return (N < 0 ? "-" : "") + $"{whole}";
     }
 
     private static long Gcd(long a, long b)
     {
+        a = Math.Abs(a);
+        b = Math.Abs(b);
         while (b != 0)
         {
             long t = a % b;
             a = b;
             b = t;
         }
-        return a == 0 ? 1 : Math.Abs(a);
+        return a == 0 ? 1 : a;
     }
 }
 
-internal static class Program
+internal static partial class Program
 {
     private static void Main()
     {
-        RunTests(); 
+        RunTests();
 
         Console.WriteLine("Bruchrechner – zwei Brüche addieren");
         Console.WriteLine("Erlaubte Formate: Ganze Zahl (3), Bruch (5/7), Gemischter Bruch (2 3/8)");
@@ -110,12 +123,21 @@ internal static class Program
 
         Fraction f1 = ReadFraction("Bitte ersten Bruch eingeben: ");
         Fraction f2 = ReadFraction("Bitte zweiten Bruch eingeben: ");
-        
-        
 
-        Fraction sum = f1 + f2;
-        Console.WriteLine();
-        Console.WriteLine($"{f1} + {f2} = {sum}");
+        try
+        {
+            Fraction sum = f1 + f2;
+            Console.WriteLine();
+            Console.WriteLine($"{f1} + {f2} = {sum}");
+        }
+        catch (OverflowException)
+        {
+            Console.WriteLine("Fehler: Die Berechnung führte zu einem Überlauf. Verwende kleinere Zahlen.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Unerwarteter Fehler bei der Addition: " + ex.Message);
+        }
     }
 
     private static void RunTests()
@@ -199,16 +221,27 @@ internal static class Program
         var rnd = new Random();
         for (int i = 1; i <= 5; i++)
         {
-            long n1 = rnd.Next(-10, 11);
-            long d1 = rnd.Next(1, 11);
-            long n2 = rnd.Next(-10, 11);
-            long d2 = rnd.Next(1, 11);
+            try
+            {
+                long n1 = rnd.Next(-10, 11);
+                long d1 = rnd.Next(1, 11);
+                long n2 = rnd.Next(-10, 11);
+                long d2 = rnd.Next(1, 11);
 
-            var f1 = new Fraction(n1, d1);
-            var f2 = new Fraction(n2, d2);
-            var sum = f1 + f2;
+                var f1 = new Fraction(n1, d1);
+                var f2 = new Fraction(n2, d2);
+                var sum = f1 + f2;
 
-            Console.WriteLine($"Testfall {i}: {f1} + {f2} = {sum}");
+                Console.WriteLine($"Testfall {i}: {f1} + {f2} = {sum}");
+            }
+            catch (OverflowException)
+            {
+                Console.WriteLine($"Testfall {i}: FEHLER - Überlauf bei Berechnung.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Testfall {i}: FEHLER - {ex.Message}");
+            }
             Thread.Sleep(500);
         }
 
@@ -225,9 +258,21 @@ internal static class Program
             {
                 return Fraction.Parse(input ?? "");
             }
+            catch (FormatException)
+            {
+                Console.WriteLine("Ungültiges Format. Erlaubte Formate: Ganze Zahl (3), Bruch (5/7), Gemischter Bruch (2 3/8)");
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine("Eingabefehler: " + ex.Message);
+            }
+            catch (OverflowException)
+            {
+                Console.WriteLine("Zahl zu groß. Bitte kleinere Werte eingeben.");
+            }
             catch (Exception ex)
             {
-                Console.WriteLine("Fehler: " + ex.Message);
+                Console.WriteLine("Unerwarteter Fehler: " + ex.Message);
             }
         }
     }
