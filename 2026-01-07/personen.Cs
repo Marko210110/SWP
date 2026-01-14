@@ -48,7 +48,7 @@ class Program
                     Console.WriteLine($"Telefon: {p.Telefon}");
                     Console.WriteLine($"Adresse: {p.Adresse}");
                     Console.WriteLine($"Unicode: {p.Unicode}");
-                    Console.WriteLine($"-------------------------------");
+                    Console.WriteLine($"------------------------------");
                 }
             }
         }
