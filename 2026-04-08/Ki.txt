@@ -1,0 +1,38 @@
+gratis Inference
+
+Google AI Studio (Gemini)
+
+Starker Free Tier
+Unterstützt große Modelle und Multimodalität
+Limits bei Requests und Tokens
+
+Groq Cloud
+
+Sehr schnelle Antworten
+Kostenlos mit Limits
+Teilweise ausgelastet
+
+OpenRouter
+
+Viele Modelle, teilweise kostenlos
+Einfach zwischen Modellen wechseln
+Kann langsamer sein
+
+
+
+"Günstig"
+
+OpenRouter (paid Modelle)
+
+Flexible Auswahl an Modellen
+Gute Preise je nach Modell
+
+Groq (paid usage)
+
+Sehr schnell
+Gutes Preis-Leistungs-Verhältnis
+
+Together AI
+
+Günstig für Open-Source Modelle
+Gut für größere Projekte
