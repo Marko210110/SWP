@@ -1,38 +1,84 @@
-gratis Inference
-
 Google AI Studio (Gemini)
+Link: Google AI Studio öffnen
 
-Starker Free Tier
-Unterstützt große Modelle und Multimodalität
-Limits bei Requests und Tokens
+Anmeldung: Google Account (kein Kreditkarte nötig)
 
+Kosten:
+
+Free Tier: kostenlos (mit Limits)
+Paid: ca. 0.3$ – 4$ pro 1M Tokens je nach Modell
+
+
+---------------------------------------------------------
 Groq Cloud
+Link: https://console.groq.com
 
-Sehr schnelle Antworten
-Kostenlos mit Limits
-Teilweise ausgelastet
+Anmeldung: Account erstellen (E-Mail)
+
+Kosten:
+
+Free Tier: tausende Requests pro Tag möglich
+Paid: sehr günstig, abhängig vom Modell
+
+--------------------------------------------------------------
 
 OpenRouter
+Link: OpenRouter starten
 
-Viele Modelle, teilweise kostenlos
-Einfach zwischen Modellen wechseln
-Kann langsamer sein
+Anmeldung: E-Mail / GitHub
 
+Kosten:
 
+Free Modelle: 0$ pro Token möglich
+Paid: Pay-as-you-go (kein Mindestbetrag)
 
-"Günstig"
+----------------------------------------------------------------
 
-OpenRouter (paid Modelle)
+Hugging Face Inference
+Link: https://huggingface.co/inference-api
 
-Flexible Auswahl an Modellen
-Gute Preise je nach Modell
+Anmeldung: Account erstellen
 
-Groq (paid usage)
+Kosten:
 
-Sehr schnell
-Gutes Preis-Leistungs-Verhältnis
+Free Tier: kostenlos (langsamer)
+Paid: abhängig von Modell & Nutzung
+
+--------------------------------------------------------------------
 
 Together AI
+Link: https://api.together.ai
 
-Günstig für Open-Source Modelle
-Gut für größere Projekte
+Anmeldung: Account + API Key
+
+Kosten:
+
+Free Credits (meist ~25$ Start)
+Danach: sehr günstige Tokenpreise
+
+------------------------------------------------------------------
+
+Cloudflare Workers AI
+Link: https://developers.cloudflare.com/workers-ai
+
+Anmeldung: Cloudflare Account
+
+Kosten:
+
+Free Tier vorhanden
+Paid: nach Nutzung
+
+------------------------------------------------------------------
+
+
+Gratis starten:
+
+Google AI Studio
+Groq
+OpenRouter
+
+Günstig skalieren:
+
+OpenRouter
+Together AI
+Groq
