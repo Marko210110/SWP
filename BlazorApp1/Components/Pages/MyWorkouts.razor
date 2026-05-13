@@ -1,0 +1,118 @@
+@page "/myworkouts"
+@rendermode InteractiveServer
+@inject ExerciseService ExerciseService
+
+<h3>My Workouts</h3>
+
+<p class="info-text">Search and add exercises to build your personal workout plan.</p>
+
+<div class="search-box">
+    <input @bind="searchName" @bind:event="oninput" @onkeypress="HandleKeyPress" placeholder="Search exercises to add..." class="form-control" />
+    <button @onclick="Search" class="btn btn-primary">Search</button>
+</div>
+
+@if (isLoading)
+{
+    <div class="loading">Loading...</div>
+}
+
+@if (searchResults.Count > 0)
+{
+    <h4>Search Results</h4>
+    <div class="exercise-grid small">
+        @foreach (var exercise in searchResults)
+        {
+            <div class="exercise-card">
+                @if (!string.IsNullOrEmpty(exercise.GifUrl))
+                {
+                    <img src="@exercise.GifUrl" alt="@exercise.Name" loading="lazy" />
+                }
+                <h4>@exercise.Name</h4>
+                <div class="tags">
+                    <span class="tag body-part">@exercise.BodyPart</span>
+                    <span class="tag target">@exercise.Target</span>
+                </div>
+                <button class="btn btn-add" @onclick="() => AddToWorkout(exercise)">Add to Workout</button>
+            </div>
+        }
+    </div>
+}
+
+<h4>My Workout Plan (@workoutPlan.Count exercises)</h4>
+
+@if (workoutPlan.Count > 0)
+{
+    <div class="workout-list">
+        @foreach (var item in workoutPlan)
+        {
+            <div class="workout-item">
+                <div class="workout-info">
+                    <h5>@item.Name</h5>
+                    <span class="tag body-part">@item.BodyPart</span>
+                    <span class="tag target">@item.Target</span>
+                </div>
+                <button class="btn btn-remove" @onclick="() => RemoveFromWorkout(item)">Remove</button>
+            </div>
+        }
+    </div>
+
+    <div class="workout-summary">
+        <h5>Workout Summary</h5>
+        <div class="summary-stats">
+            <div class="stat">
+                <label>Total Exercises</label>
+                <value>@workoutPlan.Count</value>
+            </div>
+            <div class="stat">
+                <label>Body Parts</label>
+                <value>@workoutPlan.Select(e => e.BodyPart).Distinct().Count()</value>
+            </div>
+            <div class="stat">
+                <label>Target Muscles</label>
+                <value>@workoutPlan.Select(e => e.Target).Distinct().Count()</value>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="no-results">
+        <p>Your workout plan is empty. Search and add exercises above!</p>
+    </div>
+}
+
+@code {
+    private string searchName = "";
+    private List<Exercise> searchResults = new();
+    private List<Exercise> workoutPlan = new();
+    private bool isLoading = false;
+
+    async Task Search()
+    {
+        if (string.IsNullOrWhiteSpace(searchName)) return;
+        isLoading = true;
+        searchResults = await ExerciseService.SearchExercisesByNameAsync(searchName);
+        isLoading = false;
+    }
+
+    async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await Search();
+        }
+    }
+
+    void AddToWorkout(Exercise exercise)
+    {
+        if (!workoutPlan.Any(e => e.Id == exercise.Id))
+        {
+            workoutPlan.Add(exercise);
+        }
+    }
+
+    void RemoveFromWorkout(Exercise exercise)
+    {
+        workoutPlan.RemoveAll(e => e.Id == exercise.Id);
+    }
+}

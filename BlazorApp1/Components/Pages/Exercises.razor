@@ -1,0 +1,127 @@
+@page "/exercises"
+@rendermode InteractiveServer
+@inject ExerciseService ExerciseService
+
+<h3>Exercise Search</h3>
+
+<div class="search-box">
+    <input @bind="searchName" @bind:event="oninput" @onkeypress="HandleKeyPress" placeholder="Enter exercise name (e.g., bench press, squat, curl)..." class="form-control" />
+    <button @onclick="Search" class="btn btn-primary">Search</button>
+</div>
+
+@if (isLoading)
+{
+    <div class="loading">Loading exercises...</div>
+}
+
+@if (exercises.Count > 0)
+{
+    <div class="exercise-grid">
+        @foreach (var exercise in exercises)
+        {
+            <div class="exercise-card" @onclick="() => SelectExercise(exercise)">
+                @if (!string.IsNullOrEmpty(exercise.GifUrl))
+                {
+                    <img src="@exercise.GifUrl" alt="@exercise.Name" loading="lazy" />
+                }
+                else
+                {
+                    <div class="exercise-placeholder">💪</div>
+                }
+                <h4>@exercise.Name</h4>
+                <div class="tags">
+                    <span class="tag body-part">@exercise.BodyPart</span>
+                    <span class="tag target">@exercise.Target</span>
+                    <span class="tag equipment">@exercise.Equipment</span>
+                </div>
+            </div>
+        }
+    </div>
+}
+else if (hasSearched && !isLoading)
+{
+    <div class="no-results">
+        <p>No exercises found. Try a different name.</p>
+        <p class="hint">Examples: bench press, squat, deadlift, curl, lunge</p>
+    </div>
+}
+
+@if (selectedExercise != null)
+{
+    <div class="exercise-modal" @onclick="CloseModal">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <button class="close-btn" @onclick="CloseModal">X</button>
+            <h2>@selectedExercise.Name</h2>
+            
+            @if (!string.IsNullOrEmpty(selectedExercise.GifUrl))
+            {
+                <img src="@selectedExercise.GifUrl" alt="@selectedExercise.Name" class="exercise-gif" />
+            }
+            
+            <div class="tags" style="justify-content: center; margin: 16px 0;">
+                <span class="tag body-part">@selectedExercise.BodyPart</span>
+                <span class="tag target">@selectedExercise.Target</span>
+                <span class="tag equipment">@selectedExercise.Equipment</span>
+            </div>
+
+            @if (selectedExercise.SecondaryMuscles != null && selectedExercise.SecondaryMuscles.Count > 0)
+            {
+                <div class="secondary-muscles">
+                    <strong>Secondary Muscles:</strong> @string.Join(", ", selectedExercise.SecondaryMuscles)
+                </div>
+            }
+
+            @if (selectedExercise.Instructions != null && selectedExercise.Instructions.Count > 0)
+            {
+                <div class="instructions">
+                    <h4>Instructions</h4>
+                    <ol>
+                        @foreach (var instruction in selectedExercise.Instructions)
+                        {
+                            <li>@instruction</li>
+                        }
+                    </ol>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private string searchName = "";
+    private List<Exercise> exercises = new();
+    private Exercise? selectedExercise;
+    private bool isLoading = false;
+    private bool hasSearched = false;
+
+    async Task Search()
+    {
+        if (string.IsNullOrWhiteSpace(searchName)) return;
+        isLoading = true;
+        hasSearched = true;
+        exercises = await ExerciseService.SearchExercisesByNameAsync(searchName);
+        isLoading = false;
+    }
+
+    async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await Search();
+        }
+    }
+
+    async Task SelectExercise(Exercise exercise)
+    {
+        selectedExercise = await ExerciseService.GetExerciseByIdAsync(exercise.Id ?? "");
+        if (selectedExercise == null)
+        {
+            selectedExercise = exercise;
+        }
+    }
+
+    void CloseModal()
+    {
+        selectedExercise = null;
+    }
+}
