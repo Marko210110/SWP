@@ -1,0 +1,126 @@
+@page "/bodyparts"
+@rendermode InteractiveServer
+@inject ExerciseService ExerciseService
+
+<h3>Exercises by Body Part</h3>
+
+@if (bodyParts.Count > 0)
+{
+    <div class="category-tabs">
+        @foreach (var part in bodyParts)
+        {
+            <button class="tab-btn @(selectedBodyPart == part ? "active" : "")" @onclick="() => SelectBodyPart(part)">
+                @part
+            </button>
+        }
+    </div>
+}
+
+@if (isLoading)
+{
+    <div class="loading">Loading exercises...</div>
+}
+
+@if (exercises.Count > 0)
+{
+    <div class="exercise-grid">
+        @foreach (var exercise in exercises)
+        {
+            <div class="exercise-card" @onclick="() => SelectExercise(exercise)">
+                @if (!string.IsNullOrEmpty(exercise.GifUrl))
+                {
+                    <img src="@exercise.GifUrl" alt="@exercise.Name" loading="lazy" />
+                }
+                else
+                {
+                    <div class="exercise-placeholder">💪</div>
+                }
+                <h4>@exercise.Name</h4>
+                <div class="tags">
+                    <span class="tag target">@exercise.Target</span>
+                    <span class="tag equipment">@exercise.Equipment</span>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@if (selectedExercise != null)
+{
+    <div class="exercise-modal" @onclick="CloseModal">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <button class="close-btn" @onclick="CloseModal">X</button>
+            <h2>@selectedExercise.Name</h2>
+            
+            @if (!string.IsNullOrEmpty(selectedExercise.GifUrl))
+            {
+                <img src="@selectedExercise.GifUrl" alt="@selectedExercise.Name" class="exercise-gif" />
+            }
+            
+            <div class="tags" style="justify-content: center; margin: 16px 0;">
+                <span class="tag body-part">@selectedExercise.BodyPart</span>
+                <span class="tag target">@selectedExercise.Target</span>
+                <span class="tag equipment">@selectedExercise.Equipment</span>
+            </div>
+
+            @if (selectedExercise.SecondaryMuscles != null && selectedExercise.SecondaryMuscles.Count > 0)
+            {
+                <div class="secondary-muscles">
+                    <strong>Secondary Muscles:</strong> @string.Join(", ", selectedExercise.SecondaryMuscles)
+                </div>
+            }
+
+            @if (selectedExercise.Instructions != null && selectedExercise.Instructions.Count > 0)
+            {
+                <div class="instructions">
+                    <h4>Instructions</h4>
+                    <ol>
+                        @foreach (var instruction in selectedExercise.Instructions)
+                        {
+                            <li>@instruction</li>
+                        }
+                    </ol>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<string> bodyParts = new();
+    private List<Exercise> exercises = new();
+    private Exercise? selectedExercise;
+    private string selectedBodyPart = "";
+    private bool isLoading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        bodyParts = await ExerciseService.GetBodyPartListAsync();
+        if (bodyParts.Count > 0)
+        {
+            await SelectBodyPart(bodyParts[0]);
+        }
+    }
+
+    async Task SelectBodyPart(string part)
+    {
+        selectedBodyPart = part;
+        isLoading = true;
+        exercises = await ExerciseService.GetExercisesByBodyPartAsync(part);
+        isLoading = false;
+    }
+
+    async Task SelectExercise(Exercise exercise)
+    {
+        selectedExercise = await ExerciseService.GetExerciseByIdAsync(exercise.Id ?? "");
+        if (selectedExercise == null)
+        {
+            selectedExercise = exercise;
+        }
+    }
+
+    void CloseModal()
+    {
+        selectedExercise = null;
+    }
+}
